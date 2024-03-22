@@ -7,18 +7,31 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
 players = {'X': None, 'O': None}
+""" a = {symbol: None, winner: False} """
+
+
 
 def create_board(): #done
     return [[" " for _ in range(9)] for _ in range(9)]
 
-def draw_board(board): #done
+board = create_board()
+
+def draw_board(): #done
+    # Cria uma lista para armazenar as linhas do tabuleiro, incluindo os separadores
+    board_representation = []
+
     for linha in board:
-        print("|" + "|".join(linha) + "|")
+        # Constrói a representação da linha atual do board e adiciona à representação
+        board_representation.append("|" + "|".join([" " + cell + " " for cell in linha]) + "|")
+        
+        # Adiciona o separador de linhas após cada linha do board
+    
+    board_representation.append("+---" * 9 + "+")
+    # Retorna a representação do tabuleiro como uma lista de strings
+    return board_representation
 
-    # Imprime a base do board
-    print("+--" * 6 + "+")
 
-def set_player_move(board, column, player):
+def set_player_move(column, player):
     #Função para registrar o movimento do jogador
     for line in reversed(range(9)):
         if board[line][column] == " ":
@@ -26,11 +39,8 @@ def set_player_move(board, column, player):
             return True
     return False
 
-def get_player_move(player):
-    player_input = int(input(f"Jogador {player}, escolha uma coluna (0-8): "))
-    return player_input
 
-def check_victory(board, player): #done
+def check_victory(player): #done
     # Verifica linhas, colunas e diagonais para encontrar 4 em linha
     linhas = len(board)
     colunas = len(board[0])
@@ -54,13 +64,15 @@ def check_victory(board, player): #done
                 return True
             if board[linha + 3][coluna] == player and all(board[linha + 3 - i][coluna + i] == player for i in range(4)):
                 return True
+    
+    return False
 
 
 def player_validation(player_id, player_symbol):
     global players
 
      # Verifica se o símbolo é válido
-    if player_symbol not in ['X', 'O']:
+    if player_symbol.upper() not in ['X', 'O']:
         return False
 
     # Verifica se o jogador já está conectado
@@ -81,9 +93,8 @@ with SimpleXMLRPCServer((HOST,PORT), requestHandler=RequestHandler) as server:
     server.register_introspection_functions()
 
     server.register_function(create_board, "create_board")
-    server.register_function(draw_board, "draw_board", )
+    server.register_function(draw_board, "draw_board")
     server.register_function(player_validation, "player_validation")
-    server.register_function(get_player_move, "get_player_move")
     server.register_function(set_player_move, "set_player_move")
     server.register_function(check_victory, "check_victory")
 
@@ -94,23 +105,3 @@ with SimpleXMLRPCServer((HOST,PORT), requestHandler=RequestHandler) as server:
         print("\nKeyboard interrupt received, exiting.")
         sys.exit(0)
 
-
-""" def start_game():
-    board = create_board()
-    player = 'x'
-
-    while True:
-        draw_board(board)
-        player_input = get_player_move(player)
-        if set_player_move(board, player_input, player):
-            if check_victory(board, player):
-                draw_board(board)
-                print(f"Jogador venceu!")
-                break
-        else:
-            print("Coluna cheia, escolja outra.")
-
-        if all(board[line][column] != " " for line in range(9) for column in range(9)):
-            print("Empate!")
-            break
-    return """
