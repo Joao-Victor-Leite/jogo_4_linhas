@@ -102,7 +102,7 @@ def check_victory(player):
     
     # Verifica colunas
     for column in range(columns):
-        for linha in range(lines - 3):
+        for line in range(lines - 3):
             if board[line][column] == player and all(board[line + i][column] == player for i in range(4)):
                 return True
     
@@ -162,6 +162,52 @@ def player_validation(player_id, player_symbol):
         return True  # Ambos os jogadores estão prontos
     
     return True
+
+
+def player_id_validation(player_id):
+    """
+    Valida se o identificador do jogador é válido.
+
+    Parâmetros:
+        player_id (int): O identificador do jogador a ser validado.
+
+    Retorna:
+        bool: Retorna True se o identificador do jogador for 0 ou 1, caso contrário retorna False.
+    """
+    if player_id != 0 and player_id != 1:
+        return False
+    return True
+
+
+def player_symbol_validation(player_symbol):
+    """
+    Valida se o símbolo escolhido pelo jogador é válido.
+
+    Parâmetros:
+        player_symbol (str): O símbolo do jogador a ser validado.
+
+    Retorna:
+        bool: Retorna True se o símbolo do jogador for 'X' ou 'O', caso contrário retorna False.
+    """
+    if player_symbol != 'X' and player_symbol != 'O':
+        return False
+    return True
+
+def player_input_validation(player_input):
+    """
+    Valida se a entrada do jogador para a escolha da coluna é válida.
+
+    Parâmetros:
+    player_input (int): A coluna escolhida pelo jogador.
+
+    Retorna:
+        bool: Retorna True se a entrada do jogador estiver no intervalo de 0 a 8 (inclusive),
+        caso contrário retorna False.
+    """
+    if 0 <= player_input <= 8:
+        return True
+    else:
+        return False
     
 
 with SimpleXMLRPCServer((HOST, PORT), requestHandler=RequestHandler, allow_none=True) as server:
@@ -176,6 +222,9 @@ with SimpleXMLRPCServer((HOST, PORT), requestHandler=RequestHandler, allow_none=
     server.register_function(get_game_status, "get_game_status")
     server.register_function(set_game_status, "set_game_status")
     server.register_function(player_validation, "player_validation")
+    server.register_function(player_id_validation, "player_id_validation")
+    server.register_function(player_symbol_validation, "player_symbol_validation")
+    server.register_function(player_input_validation, "player_input_validation")
 
     print(f'Serving XML-RPC on {HOST} port {PORT}')
     try:

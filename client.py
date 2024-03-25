@@ -4,11 +4,20 @@ import sys
 import os
 from port import *
 
-proxy = xmlrpc.client.ServerProxy("http://localhost:8080", allow_none=True)
+proxy = xmlrpc.client.ServerProxy(f"http://{HOST}:{PORT}", allow_none=True)
 
-# Recebe o identificador e simbolo do jogador
-player_id = int(input("Você é o jogador 0 ou 1? "))
-player_symbol = input("Você quer ser o jogador X ou O? ")
+# Recebe e verifica o identificador e simbolo do jogador
+while True:
+    player_id = int(input("Você é o jogador 0 ou 1? "))
+    if proxy.player_id_validation(player_id):
+        break
+    print("Valor de ID invalido")
+
+while True:
+    player_symbol = input("Você quer ser o jogador X ou O? ").upper()
+    if proxy.player_symbol_validation(player_symbol):
+        break
+    print("Simbolo invalido")
 
 # Valida o jogador no servidor
 validated = proxy.player_validation(player_id, player_symbol)
@@ -34,7 +43,12 @@ while True:
         for linha in current_board:
             print(linha)
 
-        player_input = int(input(f"Jogador, escolha uma coluna (0-8): "))
+        # Verifica se é a jogada é valida
+        while True:
+            player_input = int(input(f"Jogador, escolha uma coluna (0-8): "))
+            if proxy.player_input_validation(player_input):
+                break
+            print("Valor fora do intervalo permitido (0-8).")
 
         # Valida se a jogada foi feita com sucesso
         if proxy.set_player_move(player_input, player_symbol):
